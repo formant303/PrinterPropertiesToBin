@@ -1,19 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using System.Windows.Data;
+using System;
 
-namespace PrintingProperties.Converters
+namespace PrintingProperties.Converters;
+
+public class InvertBooleanConverter : IValueConverter
 {
-    public class InvertBooleanConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    => !(bool?)value ?? true;
+        if (value is bool boolValue)
+        {
+            return !boolValue;
+        }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-         => !(value as bool?);
+        // Default handling if the value is not a bool?
+        return Binding.DoNothing;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool boolValue)
+        {
+            return !boolValue;
+        }
+
+        // Default handling if the value is not a bool?
+        return Binding.DoNothing;
     }
 }

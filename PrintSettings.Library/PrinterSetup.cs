@@ -7,12 +7,12 @@
 public class PrinterSetup
 {
     public string PrinterNotes = "";
-    public PaperSize PaperSize;
-    public PaperSource PaperSource;
-    public PrinterResolution PrintQuality;
+    public PaperSize? PaperSize;
+    public PaperSource? PaperSource;
+    public PrinterResolution? PrintQuality;
     public string NameOfPrinter = "";
     public bool Landscape = false;
     public bool CanDuplex = false;
     public Duplex DSided;
-    public byte[] Devmodearray;
+    public byte[]? Devmodearray;
 }

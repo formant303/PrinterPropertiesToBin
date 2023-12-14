@@ -14,14 +14,14 @@ namespace PrintingProperties
     {
         private readonly SimpleContainer _container = new();
 
-        private static IConfiguration AddConfiguration()
-        {
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
+        //private static IConfiguration AddConfiguration()
+        //{
+        //    IConfigurationBuilder builder = new ConfigurationBuilder()
+        //        .SetBasePath(Directory.GetCurrentDirectory())
+        //        .AddJsonFile("appsettings.json");
 
-            return builder.Build();
-        }
+        //    return builder.Build();
+        //}
 
         public Bootstrapper()
         {
@@ -32,10 +32,10 @@ namespace PrintingProperties
         {
             _container
             .Singleton<IWindowManager, WindowManager>()
-            .Singleton<IEventAggregator, EventAggregator>()
+            //.Singleton<IEventAggregator, EventAggregator>()
             .Singleton<IDialogService, DialogService>();
 
-            _container.RegisterInstance(typeof(IConfiguration), "IConfiguration", AddConfiguration());
+            //_container.RegisterInstance(typeof(IConfiguration), "IConfiguration", AddConfiguration());
 
             GetType().Assembly.GetTypes()
                 .Where(type => type.IsClass)
