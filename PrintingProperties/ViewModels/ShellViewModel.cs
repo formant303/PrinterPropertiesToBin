@@ -35,11 +35,11 @@ namespace PrintingProperties.ViewModels
         #endregion
 
         private readonly IDialogService _dialogService;
-        PrinterSettings? CurrentPrintSettings = new PrinterSettings();
-        PrintDocument? pd = new PrintDocument();
-        PrintSettings? objPrinterSetup = new PrintSettings();
-        PrinterSetup? CurrentSetup = new PrinterSetup();
-        byte[]? DevModeArray;
+        PrinterSettings? _currentPrintSettings = new();
+        PrintDocument? _pd = new PrintDocument();
+        readonly PrintSettings? _objPrinterSetup = new();
+        PrinterSetup? _currentSetup = new PrinterSetup();
+        byte[]? _devModeArray;
 
         /// <summary>
         /// Get Application Window Name
@@ -76,8 +76,8 @@ namespace PrintingProperties.ViewModels
 
                 if (_selectedPrinter?.Name != null)
                 {
-                    pd = new PrintDocument();
-                    pd.PrinterSettings.PrinterName = _selectedPrinter.Name;
+                    _pd = new PrintDocument();
+                    _pd.PrinterSettings.PrinterName = _selectedPrinter.Name;
 
                     LoadPrinterSettings();
                 }
@@ -155,12 +155,12 @@ namespace PrintingProperties.ViewModels
         /// </summary>
         private void InitialseCurrentSetup()
         {
-            objPrinterSetup?.alPrinterSetup.Clear();
+            _objPrinterSetup?.alPrinterSetup.Clear();
             for (int i = 0; i <= 2; i++)
             {
                 PrinterSetup? temp = new();
                 temp = null;
-                objPrinterSetup?.alPrinterSetup.Add(temp);
+                _objPrinterSetup?.alPrinterSetup.Add(temp);
             }
         }
 
@@ -185,10 +185,10 @@ namespace PrintingProperties.ViewModels
         /// </summary>
         private void LoadPrinterSettings()
         {
-            if (pd != null)
+            if (_pd != null)
             {
-                CurrentPrintSettings = pd.PrinterSettings;
-                CurrentPrinterName = CurrentPrintSettings.PrinterName;
+                _currentPrintSettings = _pd.PrinterSettings;
+                CurrentPrinterName = _currentPrintSettings.PrinterName;
             }
             else
             {
@@ -213,9 +213,9 @@ namespace PrintingProperties.ViewModels
 
                 bool? success = _dialogService.ShowSaveFileDialog(this, settings);
 
-                if (success == true && CurrentPrintSettings != null)
+                if (success == true && _currentPrintSettings != null)
                 {
-                    GetDevmode(CurrentPrintSettings, 1, settings.FileName);
+                    GetDevmode(_currentPrintSettings, 1, settings.FileName);
                 }
             }
         }
@@ -223,21 +223,21 @@ namespace PrintingProperties.ViewModels
         #region UI Button Methods
         public void StoreSetup(int location)
         {
-            CurrentSetup = new PrinterSetup();
+            _currentSetup = new PrinterSetup();
 
-            if (objPrinterSetup != null)
+            if (_objPrinterSetup != null)
             {
                 if (location == 1 && StoreOneStatus == "Free")
                 {
                     Store(location);
-                    objPrinterSetup.alPrinterSetup[location - 1] = CurrentSetup;
+                    _objPrinterSetup.alPrinterSetup[location - 1] = _currentSetup;
                     StoreOneStatus = "In Use";
                     StoreOneInUse = true;
                 }
                 else if (location == 2 && StoreTwoStatus == "Free")
                 {
                     Store(location);
-                    objPrinterSetup.alPrinterSetup[location - 1] = CurrentSetup;
+                    _objPrinterSetup.alPrinterSetup[location - 1] = _currentSetup;
                     StoreTwoStatus = "In Use";
                     StoreTwoInUse = true;
                 }
@@ -251,9 +251,9 @@ namespace PrintingProperties.ViewModels
         }
         public void StoreRecall(int location)
         {
-            CurrentSetup = objPrinterSetup?.alPrinterSetup[location - 1] as PrinterSetup;
+            _currentSetup = _objPrinterSetup?.alPrinterSetup[location - 1] as PrinterSetup;
 
-            if (CurrentSetup == null)
+            if (_currentSetup == null)
             {
                 _dialogService.ShowMessageBox(this, $"To Recall location {location} Set it first.");
             }
@@ -264,20 +264,20 @@ namespace PrintingProperties.ViewModels
         }
         public void StoreClear(int location)
         {
-            if (objPrinterSetup != null)
+            if (_objPrinterSetup != null)
             {
                 if (location == 1 && StoreOneStatus == "In Use")
                 {
-                    CurrentSetup = new PrinterSetup();
-                    objPrinterSetup.alPrinterSetup[0] = null;
+                    _currentSetup = new PrinterSetup();
+                    _objPrinterSetup.alPrinterSetup[0] = null;
                     StoreOneStatus = "Free";
                     StoreOneInUse = false;
                     StoreOneBytes = 0;
                 }
                 else if (location == 2 && StoreTwoStatus == "In Use")
                 {
-                    CurrentSetup = new PrinterSetup();
-                    objPrinterSetup.alPrinterSetup[1] = null;
+                    _currentSetup = new PrinterSetup();
+                    _objPrinterSetup.alPrinterSetup[1] = null;
                     StoreTwoStatus = "Free";
                     StoreTwoInUse = false;
                     StoreTwoBytes = 0;
@@ -290,11 +290,11 @@ namespace PrintingProperties.ViewModels
             {
                 if (SelectedPrinter != null)
                 {
-                    if (CurrentPrintSettings != null)
+                    if (_currentPrintSettings != null)
                     {
-                        IntPtr ipDevMode = CurrentPrintSettings.GetHdevmode();
-                        CurrentPrintSettings.DefaultPageSettings.CopyToHdevmode(ipDevMode);
-                        CurrentPrintSettings = OpenPrinterPropertiesDialog(CurrentPrintSettings);
+                        IntPtr ipDevMode = _currentPrintSettings.GetHdevmode();
+                        _currentPrintSettings.DefaultPageSettings.CopyToHdevmode(ipDevMode);
+                        _currentPrintSettings = OpenPrinterPropertiesDialog(_currentPrintSettings);
                     }
                 }
             }
@@ -311,10 +311,10 @@ namespace PrintingProperties.ViewModels
         /// </summary>
         private void RecallFromArrayList()
         {
-            if (CurrentPrintSettings != null && CurrentSetup != null)
+            if (_currentPrintSettings != null && _currentSetup != null)
             {
-                CurrentPrintSettings.PrinterName = CurrentSetup.NameOfPrinter;
-                SetDevmode(CurrentPrintSettings, 2, "");
+                _currentPrintSettings.PrinterName = _currentSetup.NameOfPrinter;
+                SetDevmode(_currentPrintSettings, 2, "");
             }
 
         }
@@ -329,9 +329,9 @@ namespace PrintingProperties.ViewModels
 
             try
             {
-                if (CurrentSetup != null)
+                if (_currentSetup != null)
                 {
-                    DevModeArray = CurrentSetup.Devmodearray;
+                    _devModeArray = _currentSetup.Devmodearray;
                     // Obtain the current DEVMODE position in memory
                     hDevMode = printerSettings.GetHdevmode(printerSettings.DefaultPageSettings);
 
@@ -350,9 +350,9 @@ namespace PrintingProperties.ViewModels
                             fs.Read(devModeData, 0, devModeData.Length);
                         }
                     }
-                    else if (mode == 2) // Load DEVMODE structure from array
+                    else if (mode == 2 && _devModeArray != null) // Load DEVMODE structure from array
                     {
-                        devModeData = DevModeArray;
+                        devModeData = _devModeArray;
                     }
                     else
                     {
@@ -390,24 +390,24 @@ namespace PrintingProperties.ViewModels
         }
         private void Store(int store)
         {
-            if (CurrentPrintSettings != null && CurrentSetup != null)
+            if (_currentPrintSettings != null && _currentSetup != null)
             {
-                GetDevmode(CurrentPrintSettings, 2, "");
-                CurrentSetup.NameOfPrinter = CurrentPrintSettings.PrinterName;
-                CurrentSetup.PaperSize = CurrentPrintSettings.DefaultPageSettings.PaperSize;
-                CurrentSetup.PrintQuality = CurrentPrintSettings.DefaultPageSettings.PrinterResolution;
-                CurrentSetup.PaperSource = CurrentPrintSettings.DefaultPageSettings.PaperSource;
-                CurrentSetup.CanDuplex = CurrentPrintSettings.CanDuplex;
-                CurrentSetup.DSided = CurrentPrintSettings.Duplex;
-                CurrentSetup.Devmodearray = DevModeArray;
+                GetDevmode(_currentPrintSettings, 2, "");
+                _currentSetup.NameOfPrinter = _currentPrintSettings.PrinterName;
+                _currentSetup.PaperSize = _currentPrintSettings.DefaultPageSettings.PaperSize;
+                _currentSetup.PrintQuality = _currentPrintSettings.DefaultPageSettings.PrinterResolution;
+                _currentSetup.PaperSource = _currentPrintSettings.DefaultPageSettings.PaperSource;
+                _currentSetup.CanDuplex = _currentPrintSettings.CanDuplex;
+                _currentSetup.DSided = _currentPrintSettings.Duplex;
+                _currentSetup.Devmodearray = _devModeArray;
 
                 if (store == 1)
                 {
-                    StoreOneBytes = DevModeArray!.Length;
+                    StoreOneBytes = _devModeArray!.Length;
                 }
                 else if (store == 2)
                 {
-                    StoreTwoBytes = DevModeArray!.Length;
+                    StoreTwoBytes = _devModeArray!.Length;
                 }
             }
         }
@@ -535,7 +535,7 @@ namespace PrintingProperties.ViewModels
                     GlobalFree(hDevMode);
                     return;
                 }
-                DevModeArray = new byte[sizeNeeded];    //Copies the buffer into a byte array
+                _devModeArray = new byte[sizeNeeded];    //Copies the buffer into a byte array
                 if (mode == 1)  //Save devmode structure to file
                 {
                     FileStream fs = new FileStream(Filename, FileMode.Create);
@@ -550,7 +550,7 @@ namespace PrintingProperties.ViewModels
                 {
                     for (int i = 0; i < sizeNeeded; ++i)
                     {
-                        DevModeArray[i] = (byte)(Marshal.ReadByte(pDevMode, i));    //Copies the array to an arraylist where it can be recalled
+                        _devModeArray[i] = (byte)(Marshal.ReadByte(pDevMode, i));    //Copies the array to an arraylist where it can be recalled
                     }
                 }
 
